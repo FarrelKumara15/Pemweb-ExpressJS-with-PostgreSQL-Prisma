@@ -1,20 +1,38 @@
+const prisma = require('../prisma/client');
 const products = require('../data/products');
 
-// GET /products -> 200 + array seluruh produk
-const getAllProducts = (req, res) => {
-  res.status(200).json(products);
+// GET /products -> 200 + array seluruh produk dari database
+const getAllProducts = async (req, res) => {
+  try {
+    const allProducts = await prisma.product.findMany({
+      orderBy: { id: 'asc' },
+    });
+    res.status(200).json(allProducts);
+  } catch (error) {
+    res.status(500).json({ message: 'Gagal mengambil data produk', error: error.message });
+  }
 };
 
 // GET /products/:id -> 200 + objek produk, atau 404 jika tidak ditemukan
-const getProductById = (req, res) => {
-  const id = Number(req.params.id);
-  const product = products.find((p) => p.id === id);
+const getProductById = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ message: 'ID produk tidak valid' });
+    }
 
-  if (!product) {
-    return res.status(404).json({ message: 'Produk tidak ditemukan' });
+    const product = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: 'Produk tidak ditemukan' });
+    }
+
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ message: 'Gagal mengambil detail produk', error: error.message });
   }
-
-  res.status(200).json(product);
 };
 
 // POST /products -> 201 + produk baru (ID dibuat otomatis)
