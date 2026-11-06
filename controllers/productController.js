@@ -1,5 +1,4 @@
 const prisma = require('../prisma/client');
-const products = require('../data/products');
 
 // GET /products -> 200 + array seluruh produk dari database
 const getAllProducts = async (req, res) => {
@@ -35,22 +34,34 @@ const getProductById = async (req, res) => {
   }
 };
 
-// POST /products -> 201 + produk baru (ID dibuat otomatis)
-const createProduct = (req, res) => {
-  const { name, price } = req.body || {};
+// POST /products -> 201 + produk baru disimpan ke PostgreSQL melalui Prisma
+const createProduct = async (req, res) => {
+  try {
+    const { name, price } = req.body || {};
 
-  if (typeof name !== 'string' || name.trim() === '' ||
-      typeof price !== 'number' || !Number.isFinite(price) || price < 0) {
-    return res.status(400).json({
-      message: 'name (string tidak kosong) dan price (angka >= 0) wajib diisi',
+    if (
+      typeof name !== 'string' ||
+      name.trim() === '' ||
+      typeof price !== 'number' ||
+      !Number.isFinite(price) ||
+      price < 0
+    ) {
+      return res.status(400).json({
+        message: 'name (string tidak kosong) dan price (angka >= 0) wajib diisi',
+      });
+    }
+
+    const newProduct = await prisma.product.create({
+      data: {
+        name: name.trim(),
+        price: Math.round(price),
+      },
     });
+
+    res.status(201).json(newProduct);
+  } catch (error) {
+    res.status(500).json({ message: 'Gagal menambahkan produk', error: error.message });
   }
-
-  const newId = products.length > 0 ? Math.max(...products.map((p) => p.id)) + 1 : 1;
-  const newProduct = { id: newId, name: name.trim(), price };
-  products.push(newProduct);
-
-  res.status(201).json(newProduct);
 };
 
 module.exports = { getAllProducts, getProductById, createProduct };
