@@ -5,17 +5,17 @@ Proyek ini merupakan kelanjutan dari API Daftar Produk Minggu ke-9. Penyimpanan 
 ## Struktur Proyek
 ```
 products-api/
-├── app.js                            # Setup server Express & middleware
-├── .env.example                      # Contoh konfigurasi environment variable
+├── app.js                            
+├── .env.example                      
 ├── routes/
-│   └── productRoutes.js              # Definisi route CRUD (/products)
+│   └── productRoutes.js              
 ├── controllers/
-│   └── productController.js          # Logika endpoint CRUD dengan Prisma Client
+│   └── productController.js          
 └── prisma/
-    ├── schema.prisma                 # Konfigurasi koneksi PostgreSQL & model Product
-    ├── client.js                     # Instance PrismaClient
-    ├── seed.js                       # Data awal produk (Buku & Pulpen)
-    └── migrations/                   # Riwayat perubahan skema database (SQL)
+    ├── schema.prisma                 
+    ├── client.js                     
+    ├── seed.js                       
+    └── migrations/                   
 ```
 
 ## Cara Menjalankan Proyek
