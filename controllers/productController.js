@@ -110,4 +110,41 @@ const updateProduct = async (req, res) => {
   }
 };
 
-module.exports = { getAllProducts, getProductById, createProduct, updateProduct };
+// DELETE /products/:id atau DELETE /products -> 200 + produk yang dihapus berdasarkan id
+const deleteProduct = async (req, res) => {
+  try {
+    const rawId = req.params.id ?? req.body?.id ?? req.query?.id;
+    const id = Number(rawId);
+
+    if (rawId === undefined || rawId === null || rawId === '' || !Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ message: 'id produk (angka bulat > 0) wajib diisi' });
+    }
+
+    const existingProduct = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!existingProduct) {
+      return res.status(404).json({ message: 'Produk tidak ditemukan' });
+    }
+
+    const deletedProduct = await prisma.product.delete({
+      where: { id },
+    });
+
+    res.status(200).json({
+      message: 'Produk berhasil dihapus',
+      product: deletedProduct,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Gagal menghapus produk', error: error.message });
+  }
+};
+
+module.exports = {
+  getAllProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+};
